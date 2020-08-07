@@ -1,0 +1,1 @@
+DELETE https://lit-gorge-09408.herokuapp.com/api/persons/4

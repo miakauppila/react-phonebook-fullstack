@@ -1,8 +1,13 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 
 app.use(express.json());
+//express GET-requests checks build folder
+app.use(express.static("build"));
+
+app.use(cors());
 
 morgan.token("data", function getJsonData(req) {
   return JSON.stringify(req.body);

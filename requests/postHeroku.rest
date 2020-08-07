@@ -1,0 +1,7 @@
+POST https://lit-gorge-09408.herokuapp.com/api/persons
+Content-Type: application/json
+
+{
+"name": "Testi Heroku",
+"number": "0403234254"
+}
