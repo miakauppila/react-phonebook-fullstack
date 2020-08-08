@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 
+//testing mongo in the terminal
+//give 3 arguments: node mongo.js password
+//give 5 arguments node mongo.js password name phonenumber
+
 if (process.argv.length < 3) {
   console.log("give password as argument");
   process.exit(1);
