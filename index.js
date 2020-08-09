@@ -4,6 +4,7 @@ const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
 const Person = require("./models/person");
+const e = require("express");
 
 app.use(express.json());
 //express GET-requests checks build folder
@@ -32,29 +33,6 @@ app.use(
     }
   )
 );
-
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "123456789",
-    id: 1,
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2,
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3,
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4,
-  },
-];
 
 app.get("/", (request, response) => {
   response.send("<h1>Please check the route parameters.</h1>");
@@ -97,14 +75,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-const generateId = () => {
-  const min = 1;
-  const max = 9000000;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-  //The maximum is inclusive and the minimum is inclusive
-};
-
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
   if (!body.name) {
@@ -118,21 +89,18 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  if (Person.find({ name: body.name })) {
-    return response.status(400).json({
-      error: "name must be unique",
-    });
-  }
-
   //create a new instance
   const person = new Person({
     name: body.name,
     number: body.number,
   });
-  //save a new document to Mongo
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  //save a new document to Mongo. unique-validator acts
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
@@ -150,7 +118,7 @@ app.put("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-// note the order, the following after put
+// note the order, the following middleware after put
 // ie. request did not enter above routes
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
@@ -158,7 +126,7 @@ const unknownEndpoint = (request, response) => {
 //handle unknown requests
 app.use(unknownEndpoint);
 
-// transfer errors to this middleware
+// catch transfers errors to this middleware
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
